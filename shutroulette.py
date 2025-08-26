@@ -1,30 +1,44 @@
 import tkinter as tk
-import shutil
+import random
+import time
+import platform
 import os
+from threading import Thread
 
-def download_exe():
-    arquivo_exe = "dist\\shutroulette.exe"
-    
-    if os.path.exists(arquivo_exe):
-        destino = os.path.expanduser('~') + "\\Downloads\\shutroulette.exe"
-        
-        shutil.copy(arquivo_exe, destino)
-        label_var.set(f"Executável baixado com sucesso! Salvo em: {destino}")
+def shutdown_real():
+    sistema = platform.system()
+    try:
+        if sistema == "Windows":
+            os.system("shutdown /s /t 0")
+        elif sistema == "Linux":
+            os.system("shutdown -h now")
+        else:
+            print("Sistema não suportado para shutdown real.")
+    except Exception as e:
+        print(f"Erro: {e}")
+
+def roleta_russa_real():
+    sorteio = random.choice([True, False])
+    if sorteio:
+        for i in range(10, 0, -1):
+            label_var.set(f"Você foi sorteado! Desligando em {i} segundos...")
+            time.sleep(1)
+        shutdown_real()
     else:
-        label_var.set("Arquivo não encontrado. Certifique-se de que o .exe foi gerado.")
+        label_var.set("Você não foi sorteado! Nenhum PC será desligado.")
+
+def iniciar():
+    Thread(target=roleta_russa_real).start()
 
 root = tk.Tk()
-root.title("Baixar Executável")
+root.title("Roleta Russa Educativa")
 root.geometry("400x150")
 
 label_var = tk.StringVar()
-label_var.set("Clique para baixar o executável")
+label_var.set("Abrindo roleta russa...")
 
 label = tk.Label(root, textvariable=label_var, font=("Arial", 12))
 label.pack(pady=20)
 
-botao = tk.Button(root, text="Baixar .exe", command=download_exe)
-botao.pack()
-
+root.after(100, iniciar)
 root.mainloop()
-
